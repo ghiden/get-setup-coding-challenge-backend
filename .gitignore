@@ -78,3 +78,5 @@ dist
 .vscode
 .history
 .*.swp
+prisma/*.db
+prisma/*.db-journal

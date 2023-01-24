@@ -9,3 +9,18 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Guide {
+  id     Int            @id @default(autoincrement())
+  email  String         @unique
+  name   String?
+  guides Availability[]
+}
+
+model Availability {
+  id      Int      @id @default(autoincrement())
+  startAt DateTime
+  endAt   DateTime
+  guide   Guide    @relation(fields: [guideId], references: [id])
+  guideId Int
+}

@@ -14,5 +14,6 @@
     "./*.js",
     "src/**/*.ts",
     "test/**/*.ts",
+    "prisma/seed.ts",
   ],
 }
