@@ -1,8 +1,7 @@
-import type { Availability } from '@prisma/client';
 import express from 'express';
 import { ZodError } from 'zod';
-import { prisma } from '../db.server';
 import { AvailabilityQueryParams, AvailabilityQueryParamsSchema } from '../schemas/availability-query-params.schema';
+import { findAvailabilities } from '../services/availability.service';
 
 const router = express.Router();
 
@@ -17,13 +16,13 @@ router.get('/', async (req, res) => {
     return res.status(400).json(zodError.issues);
   }
 
-  let availabilities: Availability[];
-  if (queryParams.guideId) {
-    availabilities = await prisma.availability.findMany({ where: { guideId: queryParams.guideId } });
-  } else {
-    availabilities = await prisma.availability.findMany();
+  try {
+    const availabilities = await findAvailabilities(queryParams.guideId);
+    res.json(availabilities);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: (err as Error).message });
   }
-  res.json(availabilities);
 });
 
 export default router;

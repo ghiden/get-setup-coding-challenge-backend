@@ -80,3 +80,4 @@ dist
 .*.swp
 prisma/*.db
 prisma/*.db-journal
+.env.development
