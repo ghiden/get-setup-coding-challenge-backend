@@ -72,3 +72,109 @@ describe('GET /api/v1/availabilities', () => {
     expect(availabilityService.findAvailabilities).toHaveBeenCalledWith(guideId);
   });
 });
+
+describe('POST /api/v1/availabilities', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('returns an error when "guideId" is missing', async () => {
+    const body = {
+      availability: {
+        startAt: new Date('2023-01-01T12:00:00.000Z').toISOString(),
+        endAt: new Date('2023-01-01T14:00:00.000Z').toISOString(),
+      },
+    };
+    const res = await request(app).post('/api/v1/availabilities').send(body).expect(400);
+    const expected = [
+      {
+        code: 'invalid_type',
+        expected: 'number',
+        received: 'nan',
+        path: ['guideId'],
+        message: 'Expected number, received nan',
+      },
+    ];
+    expect(res.body).toEqual(expected);
+  });
+
+  it('returns an error when "availability" is missing', async () => {
+    const body = {
+      guideId: 3,
+    };
+    const res = await request(app).post('/api/v1/availabilities').send(body).expect(400);
+    const expected = [
+      {
+        code: 'invalid_type',
+        expected: 'object',
+        received: 'undefined',
+        path: ['availability'],
+        message: 'Required',
+      },
+    ];
+    expect(res.body).toEqual(expected);
+  });
+
+  it('returns an error when "startAt" and "endAt" are missing', async () => {
+    const body = {
+      guideId: 3,
+      availability: {},
+    };
+    const res = await request(app).post('/api/v1/availabilities').send(body).expect(400);
+    const expected = [
+      {
+        code: 'invalid_type',
+        expected: 'string',
+        received: 'undefined',
+        path: ['availability', 'startAt'],
+        message: 'Required',
+      },
+      {
+        code: 'invalid_type',
+        expected: 'string',
+        received: 'undefined',
+        path: ['availability', 'endAt'],
+        message: 'Required',
+      },
+    ];
+    expect(res.body).toEqual(expected);
+  });
+
+  it('returns an error from "createAvailability"', async () => {
+    const error = new Error('Something went wrong...');
+    jest.spyOn(availabilityService, 'createAvailability').mockRejectedValue(error);
+
+    const input = {
+      guideId: 3,
+      availability: {
+        startAt: new Date('2023-01-01T12:00:00.000Z'),
+        endAt: new Date('2023-01-01T14:00:00.000Z'),
+      },
+    };
+    const res = await request(app).post('/api/v1/availabilities').send(input).expect(500);
+    const expected = {
+      error: error.message,
+    };
+    expect(res.body).toEqual(expected);
+  });
+
+  it('returns a new "availability" from "createAvailability"', async () => {
+    const response = {
+      id: 9,
+      guideId: 3,
+      startAt: new Date('2023-01-01T12:00:00.000Z').toISOString(),
+      endAt: new Date('2023-01-01T14:00:00.000Z').toISOString(),
+    } as unknown as Availability;
+    jest.spyOn(availabilityService, 'createAvailability').mockResolvedValue(response);
+
+    const input = {
+      guideId: 3,
+      availability: {
+        startAt: new Date('2023-01-01T12:00:00.000Z'),
+        endAt: new Date('2023-01-01T14:00:00.000Z'),
+      },
+    };
+    const res = await request(app).post('/api/v1/availabilities').send(input).expect(200);
+    expect(res.body).toEqual(response);
+  });
+});

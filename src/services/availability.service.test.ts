@@ -1,4 +1,4 @@
-import { findAvailabilities } from './availability.service';
+import { createAvailability, findAvailabilities } from './availability.service';
 import type { Availability, Guide } from '@prisma/client';
 import prisma from '../db.server';
 
@@ -56,5 +56,47 @@ describe('findAvailabilities', () => {
     const res = await findAvailabilities(guideId);
     const expected: Availability[] = [];
     expect(res).toEqual(expected);
+  });
+});
+
+describe('createAvailability', () => {
+  const guideAInfo = { email: 'a@example.com', name: 'A' };
+
+  let guideA: Guide;
+
+  beforeEach(async () => {
+    await prisma.availability.deleteMany();
+    await prisma.guide.deleteMany();
+
+    guideA = await prisma.guide.create({ data: { ...guideAInfo } });
+  });
+
+  test('should return an error when "guideId" is invalid', async () => {
+    const input = {
+      guideId: guideA.id + 1,
+      startAt: new Date('2023-01-01T12:00:00.000Z'),
+      endAt: new Date('2023-01-01T14:00:00.000Z'),
+    };
+    try {
+      await createAvailability(input);
+      throw new Error('Expectation not met');
+    } catch (err) {
+      expect((err as Error).message).toContain('foreign key');
+    }
+  });
+
+  test('should create an "availability" when input is valid', async () => {
+    const input = {
+      guideId: guideA.id,
+      startAt: new Date('2023-01-01T12:00:00.000Z'),
+      endAt: new Date('2023-01-01T14:00:00.000Z'),
+    };
+    const availability = await createAvailability(input);
+    expect(availability).toEqual({
+      id: expect.anything(),
+      guideId: input.guideId,
+      startAt: input.startAt,
+      endAt: input.endAt,
+    });
   });
 });
