@@ -8,6 +8,7 @@
     "build": "tsc",
     "lint": "eslint --fix src test",
     "migrate:dev": "dotenv -e .env.development -- prisma migrate dev",
+    "migrate:test": "dotenv -e .env.test -- prisma migrate dev",
     "seed:dev": "dotenv -e .env.development -- prisma db seed",
     "prisma-studio:dev": "dotenv -e .env.development prisma studio -- -b 'Google Chrome'",
     "prisma-studio:test": "dotenv -e .env.test prisma studio -- -p 5556 -b 'Google Chrome'",
