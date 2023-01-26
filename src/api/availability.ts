@@ -6,6 +6,23 @@ import { createAvailability, findAvailabilities } from '../services/availability
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /api/v1/availabilities:
+ *   get:
+ *     tags:
+ *       - Availability
+ *     description: Retrieve availabilities
+ *     parameters:
+ *       - in: query
+ *         name: guideId
+ *         schema:
+ *           type: integer
+ *         description: Guide ID
+ *     responses:
+ *       200:
+ *         description: Return availabilities
+ */
 router.get('/', async (req, res) => {
   let queryParams: AvailabilityQueryParams;
 
@@ -26,6 +43,38 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/v1/availabilities:
+ *   post:
+ *     tags:
+ *       - Availability
+ *     description: Create an availability
+ *     requestBody:
+ *       required: true,
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: ["guideId", "availability"]
+ *             properties:
+ *               guideId:
+ *                 type: integer
+ *                 example: 1
+ *               availability:
+ *                 type: object
+ *                 required: ["startAt", "endAt"]
+ *                 properties:
+ *                   startAt:
+ *                     type: string
+ *                     example: "2023-01-31T10:00:00.000Z"
+ *                   endAt:
+ *                     type: string
+ *                     example: "2023-01-31T12:00:00.000Z"
+ *     responses:
+ *       200:
+ *         description: Return new availability
+ */
 router.post('/', async (req, res) => {
   let params: CreateAvailabilityParams;
 

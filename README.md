@@ -36,6 +36,8 @@ This is a coding challenge project for GetSetup Backend Role
     npm run dev
     ```
 
+    Access swagger docs http://localhost:3001/api/v1/docs
+
 6. Run tests
 
     Initialize the test database
